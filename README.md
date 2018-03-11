@@ -5,8 +5,8 @@
 
 **Car rides scheduling problem.**
 
-Multiples attempts. Starting from the rides is an ok anf fast solution but best score was obtainted by looking both the best fit ride for the vehicles.
-The best solver is "qhashcode2018_simple.cpp" albeit a long execution time up to 10 minutes on an AMD Threadripper 1950X (not multithreaded).
+Multiples attempts. Starting from the rides is an ok and fast solution but best score was obtainted by looking for the best fit ride/vehicle at each step.
+The best solver is "qhashcode2018_simple.cpp", albeit a long execution time up to 10 minutes on an AMD Threadripper 1950X (not multithreaded).
 
 
 | Input                     |  Standard        | Specific tuning  |
