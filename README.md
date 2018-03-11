@@ -9,14 +9,14 @@ Multiples attempts. Starting from the rides is an ok anf fast solution but best 
 The best solver is "qhashcode2018_simple.cpp" albeit a long execution time up to 10 minutes on an AMD Threadripper 1950X (not multithreaded).
 
 
-| Input                     |  Standard      | Specific tuning|
-|---------------------------|----------------|----------------|
-| a_example.in              | 10             | 10             |
-| b_should_be_easy.in       | 173452         | 176877         |
-| c_no_hurry.in             | 15474709       | 15814765       |
-| d_metropolis.in           | 11635998       | 11677987       |
-| e_high_bonus.in           | 21395951       | 21435975       |
-| total                     | 48680120       | 49105614       | 
+| Input                     |  Standard        | Specific tuning  |
+|---------------------------|------------------|------------------|
+| a_example.in              | 10               | 10               |
+| b_should_be_easy.in       | 173 452          | 176 877          |
+| c_no_hurry.in             | 15 474 709       | 15 814 765       |
+| d_metropolis.in           | 11 635 998       | 11 677 987       |
+| e_high_bonus.in           | 21 395 951       | 21 435 975       |
+| Total / Theoritical rank  | 48 680 120 # 268 | 49 105 614 # 170 | 
 
 
 ## Hashcode Qualification 2017
@@ -33,7 +33,7 @@ Dynamic solution with served request propagation/flagging
 | videos_worth_spreading.in | 533895         | 538999         | 539011            |
 | kittens.in                | 664952         | 842618         | 843235            |
 | me_at_the_zoo.in          | 454342         | 484496         | 485719            |
-| total / theoritical rank  | 2000188 #~600 | 2366082 #~215  | 2367954 #~215      |
+| Total / Theoritical rank  | 2000188 #~600 | 2366082 #~215  | 2367954 #~215      |
 
 
 ## Hashcode Qualification 2016
