@@ -42,8 +42,6 @@ Dynamic solution with served request propagation/flagging
 
 Greedy solver that starts from de delivery order and looks for the nearest warehouse that has the product and the nearest available drone, delivery starts after each order.
 
-|                            | Nearest Wh          | Nearest Wh           |
-|                            | Nearest Drone       | Nearest Drone        |
 | Input                      | Deliver on each load| Deliver on each order| 
 |----------------------------|---------------------|----------------------|
 | mother_of_all_warehouses.in|  58683              | 70192                |         
