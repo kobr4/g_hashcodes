@@ -6,7 +6,7 @@
 **Car rides scheduling problem.**
 
 Multiples attempts. Starting from the rides is an ok and fast solution but best score was obtainted by looking for the best fit ride/vehicle at each step.
-The best solver is "qhashcode2018_simple.cpp", albeit a long execution time up to 10 minutes on an AMD Threadripper 1950X (not multithreaded).
+The best solver is "qhashcode2018_simple.cpp", albeit a long execution time up to 10 minutes on an AMD Threadripper 1950X (not multithreaded). The codes had been executed at precisely 5:40 PM before deadline of 6:00 PM. We were confident because thanks to AMD we have the best desktop computer in the current state of the art. We expected as for each input data set, the best solution can be created by using specific tuning.
 
 
 | Input                     |  Standard        | Specific tuning  |
@@ -49,3 +49,10 @@ Greedy solver that starts from de delivery order and looks for the nearest wareh
 | redundancy.in              | 76971               | 87949                | 
 | total score                | 199816              | 244491               | 
 | Theoritical rank#cut-off   | 338/1054#58         | 203/1054#58          | 
+
+
+## Hashcode Qualification 2015
+
+**Optimize a data center.**
+
+Given a schema of a data center and a list of available servers, the task is to optimize the layout of the data center to maximize its availability. We have written the solver in js without having made accurately measurement of the code execution. The results arrived at a score of around 383, either at the 30th place of ladder.
