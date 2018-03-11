@@ -40,7 +40,7 @@ Dynamic solution with served request propagation/flagging
 
 **Drone delivery travels optimization.**
 
-Greedy solver that starts from de delivery order and looks for the nearest warehouse that has the product and the nearest available drone, delivery starts after each order.
+Greedy solver that starts from received delivery orders and looks for the nearest warehouse that has the product and the nearest available drone, delivery starts after each order.
 
 | Input                      | Deliver on each load| Deliver on each order| 
 |----------------------------|---------------------|----------------------|
