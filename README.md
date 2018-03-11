@@ -3,7 +3,7 @@
 
 ## Hashcode Qualification 2018
 
-** Car rides scheduling problem. **
+**Car rides scheduling problem.**
 
 Multiples attempts. Starting from the rides is an ok anf fast solution but best score was obtainted by looking both the best fit ride for the vehicles.
 The best solver is "qhashcode2018_simple.cpp" albeit a long execution time up to 10 minutes on an AMD Threadripper 1950X (not multithreaded).
@@ -21,7 +21,7 @@ The best solver is "qhashcode2018_simple.cpp" albeit a long execution time up to
 
 ## Hashcode Qualification 2017
 
-** Video caches against clients optimization. **
+**Video caches against clients optimization.**
 
 CPP solver that did not make it to Google Hashcode 2017 qualification contest
 
@@ -38,7 +38,7 @@ Dynamic solution with served request propagation/flagging
 
 ## Hashcode Qualification 2016
 
-** Drone delivery travel optimization. **
+**Drone delivery travels optimization.**
 
 Greedy solver that starts from de delivery order and looks for the nearest warehouse that has the product and the nearest available drone, delivery starts after each order.
 
