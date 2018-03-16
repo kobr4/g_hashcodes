@@ -1,4 +1,3 @@
-
 // MULTITHREADED SOLVER GOOGLE HASHCODE 2018 - AMD EDITION
 // RUN ON AMD THREADRIPPER 1950X FOR COMPETITION
 // BY MICHEL HE, NICOLAS MY, FENG YANG - MAR. 2018
@@ -27,7 +26,7 @@ int COPIES_BY_THREAD;
 #define MAX_RIDES 100000
 #define MAX_SIM_STEPS 10000000000
 
-const int bonus_factor = 7;    //adapt it to 15 for dataset E highbonus
+const int bonus_factor = 15;    //adapt it to 15 for dataset E highbonus
 const int div_ride_factor = 5; //adapt it to 10 in dataset A,B
 const int step_cost = 100;
 const int cost_limit = 100000;
@@ -82,7 +81,7 @@ typedef struct
 } T_RIDE;
 
 
-
+T_RIDE * rides;
 T_RIDE Master_ride[NB_CLIENTS];
 T_VEHICULE * vcs;
 int *score_table;
@@ -299,10 +298,55 @@ int score_vc(T_VEHICULE vc, T_RIDE * rides) {
 	return score;
 }
 
+
+static void * score_clients (void * p_data)
+{
+    int nb = (int) p_data;
+    int i;
+    //threads_table[nb]=pthread_self();
+
+    for (i = nb*COPIES_BY_THREAD; i < (nb+1)*COPIES_BY_THREAD; i++) {
+        score_table[i] = score_vc(vcs[i], rides);
+	}
+
+	if ((nb+1)==NB_CLIENTS) {
+        for(i = (nb+1)*COPIES_BY_THREAD; i < gParams.F; i++) {
+         score_table[i] = score_vc(vcs[i], rides);
+        }
+	}
+
+
+    return NULL;
+}
+
 int score_vcs(T_VEHICULE * vcs, T_RIDE * rides) {
 	int score = 0;
+
+
+    for (int i = 0; i < NB_CLIENTS; i++)
+    {
+        int ret = pthread_create (
+                  & store.thread_clients[i], NULL,
+                  score_clients, (void *) i);
+
+        if (ret)
+        {
+            fprintf (stderr, "ERR : create thr %s", strerror (ret));
+        }
+    }
+
+    for (int i = 0; i < NB_CLIENTS; i++)
+    {
+        int ret = pthread_join (store.thread_clients[i], NULL);
+        if (ret)
+        {
+            fprintf (stderr, "ERR : join thr %s", strerror (ret));
+        }
+    }
+
+
 	for (int i = 0;i < gParams.F;i++) {
-		int a = score_vc(vcs[i], rides);
+		int a = score_table[i];
 		score += a;
 	}
 	return score;
@@ -310,7 +354,6 @@ int score_vcs(T_VEHICULE * vcs, T_RIDE * rides) {
 
 int main(int argc, char **argv)
 {
-    T_RIDE * rides;
     int nb_rides;
 	int ret_item;
 	char filename[256];
@@ -401,4 +444,5 @@ int main(int argc, char **argv)
 	printf("score: %d\n",score);
 	return 0;
 }
+
 
