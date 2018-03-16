@@ -27,7 +27,7 @@ int COPIES_BY_THREAD;
 #define MAX_RIDES 100000
 #define MAX_SIM_STEPS 10000000000
 
-const int bonus_factor = 15;    //adapt it to 15 for dataset E highbonus
+const int bonus_factor = 7;    //adapt it to 15 for dataset E highbonus
 const int div_ride_factor = 5; //adapt it to 10 in dataset A,B
 const int step_cost = 100;
 const int cost_limit = 100000;
