@@ -1,7 +1,7 @@
 
 // MULTITHREADED SOLVER GOOGLE HASHCODE 2018 - AMD EDITION
 // RUN ON AMD THREADRIPPER 1950X FOR COMPETITION
-// BY MICHEL HE - MAR. 2018
+// BY MICHEL HE, NICOLAS MY, FENG YANG - MAR. 2018
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,7 +148,8 @@ static void * fn_clients (void * p_data)
 
     for (i = nb*COPIES_BY_THREAD; i < (nb+1)*COPIES_BY_THREAD; i++) {
 		if (is_candidate(Master_ride[nb], vcs[i])) {
-			int cost = Master_ride[nb].length/div_ride_factor + distance_vc_ride(vcs[i], Master_ride[nb]) - (((vcs[i].t + distance_vc_ride(vcs[i],Master_ride[nb])) == Master_ride[nb].earliest) ? gParams.B * bonus_factor : 0);
+			int d = distance_vc_ride(vcs[i], Master_ride[nb]);
+			int cost = Master_ride[nb].length/div_ride_factor + d - (((vcs[i].t + d) == Master_ride[nb].earliest) ? gParams.B * bonus_factor : 0);
 			score_table[i] = cost;
 		}
 		else {
@@ -159,7 +160,8 @@ static void * fn_clients (void * p_data)
 	if ((nb+1)==NB_CLIENTS) {
         for(i = (nb+1)*COPIES_BY_THREAD; i < gParams.F; i++) {
             if (is_candidate(Master_ride[nb], vcs[i])) {
-                int cost = Master_ride[nb].length/div_ride_factor + distance_vc_ride(vcs[i], Master_ride[nb]) - (((vcs[i].t + distance_vc_ride(vcs[i],Master_ride[nb])) == Master_ride[nb].earliest) ? gParams.B * bonus_factor : 0);
+		int d = distance_vc_ride(vcs[i], Master_ride[nb]);
+                int cost = Master_ride[nb].length/div_ride_factor + d - (((vcs[i].t + d) == Master_ride[nb].earliest) ? gParams.B * bonus_factor : 0);
                 score_table[i] = cost;
             }
             else {
