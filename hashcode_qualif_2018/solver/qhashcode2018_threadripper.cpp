@@ -131,23 +131,18 @@ int distance_ride(T_RIDE ride) {
 	return distance(ride.ride_from.r, ride.ride_from.c, ride.ride_to.r, ride.ride_to.c);
 }
 
-int compute_ride_cost(T_RIDE ride, T_VEHICULE vc) {
-	return distance_vc_ride(vc, ride) + ride.length;
-}
-
-char is_candidate(T_RIDE ride, T_VEHICULE vc) {
-	return (vc.t + compute_ride_cost(ride, vc)) < ride.latest;
+char is_candidate(T_RIDE ride, T_VEHICULE vc, int dist_cost) {
+	return (vc.t + dist_cost) < ride.latest;
 }
 
 static void * fn_clients (void * p_data)
 {
     int nb = (int) p_data;
     int i;
-    //threads_table[nb]=pthread_self();
 
     for (i = nb*COPIES_BY_THREAD; i < (nb+1)*COPIES_BY_THREAD; i++) {
-		if (is_candidate(Master_ride[nb], vcs[i])) {
-			int d = distance_vc_ride(vcs[i], Master_ride[nb]);
+        int d = distance_vc_ride(vcs[i], Master_ride[nb]);
+		if (is_candidate(Master_ride[nb], vcs[i], d + Master_ride[nb].length)) {
 			int cost = Master_ride[nb].length/div_ride_factor + d - (((vcs[i].t + d) == Master_ride[nb].earliest) ? gParams.B * bonus_factor : 0);
 			score_table[i] = cost;
 		}
@@ -158,8 +153,8 @@ static void * fn_clients (void * p_data)
 
 	if ((nb+1)==NB_CLIENTS) {
         for(i = (nb+1)*COPIES_BY_THREAD; i < gParams.F; i++) {
-            if (is_candidate(Master_ride[nb], vcs[i])) {
-		int d = distance_vc_ride(vcs[i], Master_ride[nb]);
+            int d = distance_vc_ride(vcs[i], Master_ride[nb]);
+            if (is_candidate(Master_ride[nb], vcs[i], d + Master_ride[nb].length)) {
                 int cost = Master_ride[nb].length/div_ride_factor + d - (((vcs[i].t + d) == Master_ride[nb].earliest) ? gParams.B * bonus_factor : 0);
                 score_table[i] = cost;
             }
@@ -303,7 +298,6 @@ static void * score_clients (void * p_data)
 {
     int nb = (int) p_data;
     int i;
-    //threads_table[nb]=pthread_self();
 
     for (i = nb*COPIES_BY_THREAD; i < (nb+1)*COPIES_BY_THREAD; i++) {
         score_table[i] = score_vc(vcs[i], rides);
