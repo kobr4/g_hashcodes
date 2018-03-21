@@ -382,6 +382,7 @@ int main(int argc, char **argv)
 		NB_CLIENTS = gParams.F / 50 + 1;
 	}
 
+	
 	nb_rides = gParams.N;
 	rides = (T_RIDE*)malloc(sizeof(T_RIDE) * gParams.N);
 
