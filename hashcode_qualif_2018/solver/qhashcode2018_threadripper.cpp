@@ -20,14 +20,17 @@
 #endif
 
 int NB_CLIENTS;
-
 int COPIES_BY_THREAD;
+
+#define RATE_BONUS_FLEET 0.7
+
+#define DEBUG_INFO printf
 
 #define MAX_RIDES 100000
 #define MAX_SIM_STEPS 10000000000
 
-const int bonus_factor = 15;    //adapt it to 15 for dataset E highbonus
-const int div_ride_factor = 5; //adapt it to 10 in dataset A,B
+const int bonus_factor = 10;    //adapt it to 15 for dataset E highbonus
+const int div_ride_factor = 2; //adapt it to 10 in dataset A,B
 const int step_cost = 100;
 const int cost_limit = 100000;
 
@@ -82,7 +85,7 @@ typedef struct
 
 
 T_RIDE * rides;
-T_RIDE Master_ride[NB_CLIENTS];
+T_RIDE * Master_ride;
 T_VEHICULE * vcs;
 int *score_table;
 
@@ -92,7 +95,7 @@ typedef struct
     int stock;
 
     pthread_t thread_store;
-    pthread_t thread_clients [NB_CLIENTS];
+    pthread_t *thread_clients;
 
     pthread_mutex_t mutex_store;
     pthread_cond_t cond_store;
@@ -169,7 +172,7 @@ static void * fn_clients (void * p_data)
 }
 
 int select_car(T_RIDE ride, T_VEHICULE * vcs, int max_cost) {
-	int lowest = -1;
+	int lowest = cost_limit;
 	int selected = -1;
 
 
@@ -210,52 +213,118 @@ int select_car(T_RIDE ride, T_VEHICULE * vcs, int max_cost) {
 	return selected;
 }
 
-void assign_ride(T_VEHICULE * vc, T_RIDE ride, int ri) {
+void assignRide(T_VEHICULE * vc, T_RIDE ride, int ri) {
 
-	vc->mv[vc->mvcount].type = 1;
 	vc->mv[vc->mvcount].p1 = ri;
-	vc->mv[vc->mvcount].p2 = vc->t;
 	vc->mvcount++;
 
-	vc->t += distance_vc_ride(*vc, ride) + ride.length;
+	vc->t += distance_vc_ride(*vc, ride) + distance_ride(ride);
 
 	vc->c = ride.ride_to.c;
 	vc->r = ride.ride_to.r;
 }
 
-int fill_ride_order(T_RIDE * rides, T_VEHICULE * vcs) {
-	int vc_selected = -1;
-	int max_cost = 0;
-	while (vc_selected == -1 && max_cost < cost_limit) {
-		for (int i = 0; i < gParams.N; i++) {
-			if (rides[rides[i].idx].filled == 1) continue;
 
-			vc_selected = select_car(rides[i], vcs, max_cost);
+int compare(void const *a, void const *b) {
+    T_RIDE * req1 = (T_RIDE*)a;
+    T_RIDE * req2 = (T_RIDE*)b;
+    if (req1->earliest == req2->earliest)
+    {
 
-			if (vc_selected != -1) {
-				printf("vc: %d -> ride: %d\n", vc_selected,rides[i].idx);
-				rides[rides[i].idx].filled_at = vcs[vc_selected].t + distance_vc_ride(vcs[vc_selected], rides[i]);
-				assign_ride(&vcs[vc_selected], rides[i], rides[i].idx);
-				rides[rides[i].idx].filled = 1;
-				break;
+        int latest1 = req1->latest;
+        int latest2 = req2->latest;
+        if (latest1==latest2)
+        {
+			int dist1 = distance(0,0,req1->ride_from.r,req1->ride_from.c);
+			int dist2 = distance(0,0,req2->ride_from.r,req2->ride_from.c);
+			if (dist1==dist2) {
+					int run_dist1 = distance(req1->ride_from.r,req1->ride_from.c, req1->ride_to.r,req1->ride_to.c);
+					int run_dist2 = distance(req2->ride_from.r,req2->ride_from.c, req2->ride_to.r,req2->ride_to.c);
+					return run_dist1 - run_dist2;
 			}
-		}
+			else
+				return dist1 - dist2;
+			}
+        else
+            return latest1 - latest2;
 
-		max_cost += step_cost;
+    }
+    else
+        return req1->earliest - req2->earliest;
+}
+
+int compare_ls(void const *a, void const *b) {
+	T_RIDE * req1 = (T_RIDE*)a;
+	T_RIDE * req2 = (T_RIDE*)b;
+	// upward
+	if (req1->latest_start==req2->latest_start) {
+        int run_dist1 = distance(req1->ride_from.r,req1->ride_from.c, req1->ride_to.r,req1->ride_to.c);
+        int run_dist2 = distance(req2->ride_from.r,req2->ride_from.c, req2->ride_to.r,req2->ride_to.c);
+        return run_dist2 - run_dist1;
 	}
-	return max_cost;
+    else
+	  return req1->latest_start - req2->latest_start;
+}
+
+int compare_ride_length(void const *a, void const *b) {
+	T_RIDE * req1 = (T_RIDE*)a;
+	T_RIDE * req2 = (T_RIDE*)b;
+	return req1->length - req2->length;
+}
+
+
+void fillRideOrder(T_RIDE * rides, T_VEHICULE * vcs) {
+
+
+	T_RIDE * oListSorted = (T_RIDE *)malloc(sizeof(T_RIDE)*gParams.N);
+	memcpy(oListSorted, rides, sizeof(T_RIDE) * gParams.N);
+	qsort(oListSorted, gParams.N, sizeof(T_RIDE), compare);
+
+	for (int i = 0; i < gParams.N*RATE_BONUS_FLEET; i++) {
+		if (rides[oListSorted[i].idx].filled == 1) continue;
+
+		int vci = select_car(oListSorted[i], vcs, 1);
+
+		if (vci != -1) {
+			//DEBUG_INFO("vc: %d ride: %d \n", vci, i);
+			rides[oListSorted[i].idx].filled_at = vcs[vci].t + distance_vc_ride(vcs[vci], oListSorted[i]);
+			assignRide(&vcs[vci], oListSorted[i], oListSorted[i].idx);
+			rides[oListSorted[i].idx].filled = 1;
+		}
+	}
+
+	int bonus_count = 0;
+	for (int i = 0; i < gParams.N; i++) {
+		if (rides[i].filled) bonus_count++;
+	}
+	DEBUG_INFO("Dispatched for bonus: %d\n", bonus_count);
+
+	qsort(oListSorted, gParams.N, sizeof(T_RIDE), compare_ls);
+    int ls_count = 0;
+	for (int i = 0; i < gParams.N; i++) {
+		if (rides[oListSorted[i].idx].filled == 1) continue;
+
+		int vci = select_car(oListSorted[i], vcs, 0);
+
+		if (vci != -1) {
+			//DEBUG_INFO("vc: %d ride: %d \n", vci, i);
+			rides[oListSorted[i].idx].filled_at = vcs[vci].t + distance_vc_ride(vcs[vci], oListSorted[i]);
+			assignRide(&vcs[vci], oListSorted[i], oListSorted[i].idx);
+			rides[oListSorted[i].idx].filled = 1;
+			ls_count++;
+		}
+	}
+
+	DEBUG_INFO("Dispatched for ls: %d\n", ls_count);
+	//DEBUG_INFO("ride 0: %d ride 1: %d\n", oListSorted[0].earliest, oListSorted[1].earliest);
 }
 
 void solver(T_RIDE * rides, T_VEHICULE * vcs) {
-	int ret = 0;
-	while (ret < cost_limit) {
-		ret = fill_ride_order(rides, vcs);
-	}
+	fillRideOrder(rides, vcs);
 }
-
 // Solving end here
 void output(T_VEHICULE * vcs, char * filename) {
-	printf("printing output\n");
+	DEBUG_INFO("printing output\n");
 	FILE * f = fopen(filename, "w");
 
 	for (int i = 0; i < gParams.F; i++) {
@@ -359,18 +428,18 @@ int main(int argc, char **argv)
 	{
 		strcpy(filename, "c:\\temp\\a_example.in");
 	}
-	printf("open %s\n", filename);
+	DEBUG_INFO("open %s\n", filename);
 
 	FILE * fin = fopen(filename, "r");
 
 	if (fin == NULL)
 	{
-		printf("fopen err\n");
+		DEBUG_INFO("fopen err\n");
 		exit(1);
 	}
 
 	fscanf(fin, "%d %d %d %d %d %d\n", &gParams.R, &gParams.C, &gParams.F, &gParams.N, &gParams.B, &gParams.T);
-	printf("map %d %d, number of vehicles :%d, number of rides %d, per-ride bonus %d, number of steps %d\n",
+	DEBUG_INFO("map %d %d, number of vehicles :%d, number of rides %d, per-ride bonus %d, number of steps %d\n",
 		gParams.R, gParams.C, gParams.F, gParams.N, gParams.B, gParams.T);
 
 	assert(gParams.N<MAX_RIDES);
@@ -382,7 +451,9 @@ int main(int argc, char **argv)
 		NB_CLIENTS = gParams.F / 50 + 1;
 	}
 
-	
+	Master_ride = (T_RIDE*)malloc(sizeof(T_RIDE) * NB_CLIENTS);
+	store.thread_clients = (pthread_t *)malloc(sizeof(pthread_t) * NB_CLIENTS);
+
 	nb_rides = gParams.N;
 	rides = (T_RIDE*)malloc(sizeof(T_RIDE) * gParams.N);
 
@@ -400,7 +471,7 @@ int main(int argc, char **argv)
 		if (ret_item == 0)
 			break;
 
-		printf("ride N %d :%d %d %d %d %d %d\n", nb_rides,
+		DEBUG_INFO("ride %d :%d %d %d %d %d %d\n", nb_rides,
 			rides[nb_rides].ride_from.r,
 			rides[nb_rides].ride_from.c,
 			rides[nb_rides].ride_to.r,
@@ -412,6 +483,7 @@ int main(int argc, char **argv)
 	fclose(fin);
 
 	COPIES_BY_THREAD = gParams.F / NB_CLIENTS;
+	DEBUG_INFO("NB_CLIENTS=%d COPIES_BY_THREAD=%d\n", NB_CLIENTS, COPIES_BY_THREAD);
 
 	score_table = (int *)malloc(sizeof(int)*gParams.F);
 
@@ -442,8 +514,9 @@ int main(int argc, char **argv)
 	sprintf(str, "%s.%d.out", filename, score);
 	output(vcs, str);
 
-	printf("score: %d\n",score);
+	DEBUG_INFO("score: %d\n",score);
 	return 0;
 }
+
 
 
