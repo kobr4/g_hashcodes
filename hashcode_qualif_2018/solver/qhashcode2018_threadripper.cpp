@@ -19,7 +19,7 @@
 #  define psleep(sec) sleep ((sec))
 #endif
 
-#define NB_CLIENTS      10
+int NB_CLIENTS;
 
 int COPIES_BY_THREAD;
 
@@ -169,7 +169,7 @@ static void * fn_clients (void * p_data)
 }
 
 int select_car(T_RIDE ride, T_VEHICULE * vcs, int max_cost) {
-	int lowest = MAX_SIM_STEPS;
+	int lowest = -1;
 	int selected = -1;
 
 
@@ -375,6 +375,12 @@ int main(int argc, char **argv)
 
 	assert(gParams.N<MAX_RIDES);
 	assert(gParams.T<MAX_SIM_STEPS);
+	if (gParams.F < 50) {
+		NB_CLIENTS = 1;
+	}
+	else {
+		NB_CLIENTS = gParams.F / 50 + 1;
+	}
 
 	nb_rides = gParams.N;
 	rides = (T_RIDE*)malloc(sizeof(T_RIDE) * gParams.N);
