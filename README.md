@@ -6,6 +6,24 @@
 
 After 3 hours of intense work we finally break free. Our target is to make a simple Greedy algorithm to use the parallelism processing provided by a powerful AMD multi-cores Threadripper 1950X CPU. This year the Google problem is to sort photo album, and make each keyword of photo to match each other. Then, we make it, 2 versions will finally be done, one in Scala language and the other in C language. Run datasets for only 7 minutes on AMD machine. Hit the score board, having cross the 1M points bar. Great ! Classed after 200th. Satisfied but a bit disappointed since we have missed the top 200 world class team.
 
+Score :
+
+A – Example
+2 
+
+B – Lovely landscapes
+211632 
+
+C – Memorable moments
+1411 
+
+D – Pet pictures
+434330 
+
+E – Shiny selfies
+372492 
+
+Total score 1.019.867
 
 ## Hashcode Qualification 2018
 
