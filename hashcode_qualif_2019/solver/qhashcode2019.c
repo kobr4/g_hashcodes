@@ -63,6 +63,7 @@ int *photo_matched;
 struct slide_container **photo_list;
 // counter of total number of lines in output.txt
 int n_global_slides = 0;
+
 //table for scoring in multithread context
 int *score_table;
 int NB_CLIENTS;
@@ -226,7 +227,7 @@ static void * fn_clients (void * fn_args)
     int v;
     /*
     pthread_mutex_lock(&store.mutex_clients);
-    printf("RUN THREAD with k=%d nb=%d from_idx=%d\n", k, nb, from_idx);
+    DEBUG_LEVEL_1("RUN THREAD with k=%d nb=%d from_idx=%d\n", k, nb, from_idx);
     pthread_mutex_unlock(&store.mutex_clients);
     */
     if ((nb+1)*COPIES_BY_THREAD < from_idx) return NULL;
@@ -511,9 +512,9 @@ int main(int argc, char **argv)
     if (argc<2)
     {
         //load_photo("C:\\TEMP\\h19\\bin\\Debug\\a_example.txt");
-        //load_photo("C:\\TEMP\\h19\\bin\\Debug\\b_lovely_landscapes.txt");
+        load_photo("C:\\TEMP\\h19\\bin\\Debug\\b_lovely_landscapes.txt");
         //load_photo("C:\\TEMP\\h19\\bin\\Debug\\c_memorable_moments.txt");
-        load_photo("C:\\TEMP\\h19\\bin\\Debug\\d_pet_pictures.txt");
+        //load_photo("C:\\TEMP\\h19\\bin\\Debug\\d_pet_pictures.txt");
         //load_photo("C:\\TEMP\\h19\\bin\\Debug\\e_shiny_selfies.txt");
         strcpy(result_name, "result");
     }
@@ -523,21 +524,23 @@ int main(int argc, char **argv)
         strcpy(result_name, argv[1]);
     }
 
-    strcat(result_name, "_res.txt");
+    strcat(result_name, ".out");
+    if (nbelem < DATASET_GRANULARITY) 
+    {
+		   NB_CLIENTS = 1;
+	  }
+	  else 
+    {
+		   NB_CLIENTS = (int)(nbelem / DATASET_GRANULARITY);
+		   if (NB_CLIENTS*DATASET_GRANULARITY!=nbelem) NB_CLIENTS++;
+	  }
+    
+	  if (NB_CLIENTS>MAX_CLIENTS ) NB_CLIENTS = MAX_CLIENTS ;
 
-    if (nbelem < DATASET_GRANULARITY) {
-		NB_CLIENTS = 1;
-	}
-	else {
-		NB_CLIENTS = (int)(nbelem / DATASET_GRANULARITY);
-		if (NB_CLIENTS*DATASET_GRANULARITY!=nbelem) NB_CLIENTS++;
-	}
-	if (NB_CLIENTS>MAX_CLIENTS ) NB_CLIENTS = MAX_CLIENTS ;
-
-	COPIES_BY_THREAD = nbelem / NB_CLIENTS;
-	if (COPIES_BY_THREAD==0) COPIES_BY_THREAD = 1;
-	printf("pthread NB_CLIENTS=%d COPIES_BY_THREAD=%d\n", NB_CLIENTS, COPIES_BY_THREAD);
-	store.thread_clients = (pthread_t *)malloc(sizeof(pthread_t) * NB_CLIENTS);
+	  COPIES_BY_THREAD = nbelem / NB_CLIENTS;
+	  if (COPIES_BY_THREAD==0) COPIES_BY_THREAD = 1;
+	  printf("pthread NB_CLIENTS=%d COPIES_BY_THREAD=%d\n", NB_CLIENTS, COPIES_BY_THREAD);
+	  store.thread_clients = (pthread_t *)malloc(sizeof(pthread_t) * NB_CLIENTS);
 
     int ls_photo = sort_photo();
 
