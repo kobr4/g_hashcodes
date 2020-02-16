@@ -1,8 +1,11 @@
-
 /*
 Author: Michel HE
    GOOGLE HASHCODE 2019 FINAL ROUND - RUN ON AMD 1950X
 */
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include <fstream>
 #include <sstream>
@@ -201,7 +204,7 @@ void parser(vector<CIndividu>& objList, map<string, CIndividu>& objMap,
 		{
 		    getline(myfile, line);
 		    getline(myfile, line2);
-		    
+
 		    line = line + " " + line2;
 
 			CIndividu individu;
@@ -318,8 +321,8 @@ void processor(vector<CIndividu>& objList, map<string, CIndividu>& objMap,
         ofstream outfile;
         outfile.open (out_filename);
 
-		// sort by target deadlines - useful for later
-		sort(targetList.begin(), targetList.end(), sort_deadline);
+		// sort by target deadlines
+		//sort(targetList.begin(), targetList.end(), sort_deadline);
 
 		// may try this instead of deadline
 		//sort(targetList.begin(), targetList.end(), sort_global_points);
@@ -437,7 +440,7 @@ void processor(vector<CIndividu>& objList, map<string, CIndividu>& objMap,
         //create time map
         DEBUG_INFO << "** start computing time map" << endl;
         map<string, int> TimeMap;
-	serv = 0;
+        serv = 0;
         for (vector<vector<string>>::iterator it = target_server.begin(); it != target_server.end(); ++it, ++serv)
         {
             vector<string> objList_target = *it;
@@ -548,26 +551,217 @@ void processor(vector<CIndividu>& objList, map<string, CIndividu>& objMap,
 }
 
 
+
+void processor_bigdata(vector<CIndividu>& objList, map<string, CIndividu>& objMap,
+    vector<CTarget>& targetList, vector<vector<string>>& target_server, string out_filename)
+{
+        unsigned int max_similar = 0;
+        unsigned int serv1, serv2;
+        int serv = 0;
+        int Time_index;
+
+        ofstream outfile;
+        outfile.open (out_filename);
+
+		// sort by target deadlines
+		//sort(targetList.begin(), targetList.end(), sort_deadline);
+
+		// may try this instead of deadline
+		//sort(targetList.begin(), targetList.end(), sort_global_points);
+
+/*  for debug
+		for (int i = 0; i < NumberTarget; i++)
+		{
+			//DEBUG_PRINT << targetList[i].name << " " << targetList[i].deadline << " " << endl;
+		}
+*/
+
+		// at beginning, each target has its own server
+        for (int i = 0; i < NumberTarget; i++)
+		{
+		    for (int j = 0; j < NumberObj; j++)
+            {
+                if (!targetList[i].name.compare(objList[j].name))
+                {
+                    //DEBUG_PRINT << endl << "found target : " << targetList[i].name << " " << targetList[i].deadline << " " << endl;
+                    vector<string> objList_target;
+
+                    create_depmap(targetList[i].name, objList_target, objMap);
+                    objList_target.push_back(targetList[i].name);
+                    target_server.push_back(objList_target);
+                }
+            }
+		}
+/*	for debug
+        //DEBUG_PRINT << "-- List of targets" <<endl;
+		for (int j = 0; j < NumberTarget; j++)
+        {
+            //DEBUG_PRINT << "j=" << j << endl;
+            vector<string> objList_onServer = target_server[j];
+            for (vector<string>::iterator it = objList_onServer.begin(); it != objList_onServer.end(); ++it)
+            {
+                string dep = *it;
+                //DEBUG_PRINT << "-" << dep;
+            }
+            //DEBUG_PRINT << endl;
+        }
+*/
+        DEBUG_INFO << "** reducing the number of target servers" << endl;
+        if ((NumberTarget>num_servers) && (NumberTarget>1))
+        {
+            int ReducedTarget = target_server.size();
+
+            while ((ReducedTarget>num_servers) && (ReducedTarget>1))
+            {
+                cout << "* " << ReducedTarget << endl;
+                // random still is the arbitrary choice
+                serv1 = (rand() % target_server.size());
+                // random still is the arbitrary choice
+                serv2 = (rand() % target_server.size()) + 1;
+                if (serv2==target_server.size()) serv2 = target_server.size()-1;
+
+                // trying the load balancing
+                unsigned int least_occup1 = UNDEF_VALUE;
+                unsigned int least_occup2 = UNDEF_VALUE;
+                unsigned int occupancy = UNDEF_VALUE;
+                for (unsigned int elem=0; elem<target_server.size(); elem++)
+                {
+                        unsigned int vlen = target_server[elem].size();
+                        if (occupancy>vlen)
+                        {
+                            least_occup2 = least_occup1;
+                            least_occup1 = elem;
+                            occupancy = vlen;
+                        }
+                }
+
+                if ((least_occup1!=UNDEF_VALUE) && (least_occup2!=UNDEF_VALUE))
+                {
+                    DEBUG_INFO << "** servers load balacing" << endl;
+                    serv1 = least_occup1;
+                    serv2 = least_occup2;
+                    //DEBUG_PRINT << "found 2 lazy servers " << least_occup1 << " and " << least_occup2 << endl;
+                }
+
+                if (serv1>serv2)
+                {
+                    swap(serv1,serv2);
+                }
+
+                //DEBUG_PRINT << "max_similar = " << max_similar << " between " << serv1 << " " << serv2 << endl;
+
+                vector<string> v1 = target_server[serv1];
+                vector<string> v2 = target_server[serv2];
+                cout << "* v1.size " << v1.size() << "* v2.size " << v2.size() << endl;
+                vector<string> vfusion(v1);
+                vfusion.insert(vfusion.end(), v2.begin(), v2.end());
+                uniq(vfusion);
+
+                target_server.erase(target_server.begin()+serv2);
+                target_server[serv1]=vfusion;
+
+                ReducedTarget = target_server.size();
+            }
+        }
+
+        //show list
+        DEBUG_INFO << endl << "** final list" << endl;
+        unsigned int NumberStep = 0;
+        unsigned int MaxStepByServer = 0;
+        serv = 0;
+        for (vector<vector<string>>::iterator it = target_server.begin(); it != target_server.end(); ++it, ++serv)
+        {
+            vector<string> objList_target = *it;
+            if (MaxStepByServer < objList_target.size())
+            {
+                MaxStepByServer = objList_target.size();
+            }
+
+            if (objList_target.size()>0)
+            {
+                uniq(objList_target);
+                *it = objList_target;
+                NumberStep += objList_target.size();
+                /* for debug x
+                DEBUG_PRINT << endl << "server " << serv << endl;
+                for (vector<string>::iterator it2 = objList_target.begin(); it2 != objList_target.end(); ++it2)
+                {
+                    string dep = *it2;
+                    DEBUG_INFO << dep << " ";
+                }
+                */
+            }
+        }
+        DEBUG_INFO << endl;
+        DEBUG_INFO << "NumberStep " << NumberStep << endl;
+        DEBUG_INFO << "MaxStepByServer " << MaxStepByServer << endl;
+
+        // output final format
+        outfile << NumberStep << endl;
+        for (unsigned int s=0; s<MaxStepByServer; s++)
+        {
+            serv = 0;
+            for (vector<vector<string>>::iterator it = target_server.begin(); it != target_server.end(); ++it, ++serv)
+            {
+                vector<string> objList_target = *it;
+                if (s < objList_target.size())
+                {
+                    outfile << objList_target[s] << " " << serv << endl;
+                }
+            }
+        }
+
+		outfile.close();
+}
+
 int main(int argc, char** argv)
 {
-    char *filename;
-    if (argc>1)
-    {
-        filename = argv[1];
-    }
-    else
-    {
-        filename = "a_example.in";
-    }
-    string in_filename(filename);
-    string out_filename(filename);
+  int bflag = 0;
+  char *cvalue = NULL;
+  int index;
+  int c;
+
+  opterr = 0;
+
+  while ((c = getopt (argc, argv, "bf:")) != -1)
+    switch (c)
+      {
+      case 'b':
+        bflag = 1;
+        break;
+      case 'f':
+        cvalue = optarg;
+        break;
+      case '?':
+        if (optopt == 'f')
+          fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+        else if (isprint (optopt))
+          fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+        else
+          fprintf (stderr,
+                   "Unknown option character `\\x%x'.\n",
+                   optopt);
+        return 1;
+      default:
+        break;
+      }
+
+    printf ("bigdata = %d, readfile %s\n", bflag, cvalue);
+
+    string in_filename(cvalue);
+    string out_filename(cvalue);
     out_filename += ".out";
 
 	vector<CIndividu> objList;
 	map<string, CIndividu> objMap;
-  vector<CTarget> targetList;
-  vector<vector<string>> target_server;
+    vector<CTarget> targetList;
+    vector<vector<string>> target_server;
 
-  parser(objList,objMap,targetList,target_server,in_filename);
-  processor(objList,objMap,targetList,target_server,out_filename);
+    parser(objList,objMap,targetList,target_server,in_filename);
+    if (bflag)
+        processor_bigdata(objList,objMap,targetList,target_server,out_filename);
+    else
+        processor(objList,objMap,targetList,target_server,out_filename);
+
+    return 0;
 }
