@@ -196,12 +196,12 @@ void parser(vector<CIndividu>& objList, map<string, CIndividu>& objMap,
         }
 
 	    DEBUG_INFO << "source files " << num_files << " to num_targets " << num_targets << " on num_servers " << num_servers << endl;
-        int current_file = 0;
-		while (current_file < num_files)
+            NumberObj = 0;
+		while (NumberObj < num_files)
 		{
 		    getline(myfile, line);
 		    getline(myfile, line2);
-		    current_file++;
+		    
 		    line = line + " " + line2;
 
 			CIndividu individu;
@@ -437,6 +437,7 @@ void processor(vector<CIndividu>& objList, map<string, CIndividu>& objMap,
         //create time map
         DEBUG_INFO << "** start computing time map" << endl;
         map<string, int> TimeMap;
+	serv = 0;
         for (vector<vector<string>>::iterator it = target_server.begin(); it != target_server.end(); ++it, ++serv)
         {
             vector<string> objList_target = *it;
