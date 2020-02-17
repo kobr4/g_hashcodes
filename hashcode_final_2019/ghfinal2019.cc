@@ -40,6 +40,7 @@ public:
 	int compile_time;
 	int replicate_time;
     int num_dep;
+	int freq;
 	vector<string> dependencies;
 
     bool operator< (const CIndividu& userObj) const
@@ -74,6 +75,13 @@ struct s_sort_num_dep
 	}
 } sort_num_dep;
 
+struct s_sort_freq
+{
+	bool operator()(const CIndividu &left, const CIndividu &right)
+	{
+		return (left.freq > right.freq);
+	}
+} sort_freq;
 
 // *** Define Class
 class CTarget
@@ -159,6 +167,8 @@ void create_depmap(string dep2, vector<string>& objList_target, map<string, CInd
             objList_target.push_back(dep2);
         }
     }
+    individu.freq++;
+    objMap[dep2] = individu;
 }
 
 
@@ -714,18 +724,232 @@ void processor_bigdata(vector<CIndividu>& objList, map<string, CIndividu>& objMa
 		outfile.close();
 }
 
+
+
+void processor_heuristic(vector<CIndividu>& objList, map<string, CIndividu>& objMap,
+    vector<CTarget>& targetList, vector<vector<string>>& target_server, string out_filename)
+{
+        // let's make a vector space for our targets
+        vector<string> objKernel;
+
+        unsigned int serv1, serv2;
+        int serv = 0;
+
+        ofstream outfile;
+        outfile.open (out_filename);
+
+
+/*  for debug
+		for (int i = 0; i < NumberTarget; i++)
+		{
+			//DEBUG_PRINT << targetList[i].name << " " << targetList[i].deadline << " " << endl;
+		}
+*/
+
+		// at beginning, each target has its own server
+        for (int i = 0; i < NumberTarget; i++)
+		{
+		    for (int j = 0; j < NumberObj; j++)
+            {
+                if (!targetList[i].name.compare(objList[j].name))
+                {
+                    //DEBUG_PRINT << endl << "found target : " << targetList[i].name << " " << targetList[i].deadline << " " << endl;
+                    vector<string> objList_target;
+                    create_depmap(targetList[i].name, objList_target, objMap);
+                    objList_target.push_back(targetList[i].name);
+                    target_server.push_back(objList_target);
+                }
+            }
+		}
+
+
+        if (gflag)
+        {
+            // this is God Mode
+            for (int i=0; i<num_servers && i<objList.size(); i++)
+                objKernel.push_back(objList[rand()%objList.size()].name);
+        }
+        else
+        {
+            // create_depmap has created the heuristics for the obj
+            // now we can use their frequency of occurence
+            cout << "using heuristic method" << endl;
+            // this is the other way how one can create kernels
+            vector<CIndividu> vbackup;
+            for (auto const &it : objMap)
+            {
+                CIndividu individu = it.second;
+                vbackup.push_back(individu);
+            }
+            sort(vbackup.begin(), vbackup.end(), sort_freq); //mostly used
+            for (int i=0; i<num_servers && i<objList.size(); i++)
+                objKernel.push_back(vbackup[i].name);
+        }
+        // since each kernel is affected on uniq server
+        int k;
+        for (vector<string>::iterator it = objKernel.begin(); it != objKernel.end(); ++it, ++k)
+        {
+                string kdep = *it;
+                cout << " ** / kernel " << k << " : " << kdep << endl;
+        }
+
+/*	for debug
+        //DEBUG_PRINT << "-- List of targets" <<endl;
+		for (int j = 0; j < NumberTarget; j++)
+        {
+            //DEBUG_PRINT << "j=" << j << endl;
+            vector<string> objList_onServer = target_server[j];
+            for (vector<string>::iterator it = objList_onServer.begin(); it != objList_onServer.end(); ++it)
+            {
+                string dep = *it;
+                //DEBUG_PRINT << "-" << dep;
+            }
+            //DEBUG_PRINT << endl;
+        }
+*/
+
+
+        DEBUG_INFO << "** reducing the number of target servers" << endl;
+        if ((NumberTarget>num_servers) && (NumberTarget>1))
+        {
+            int ReducedTarget = target_server.size();
+
+            while ((ReducedTarget>num_servers) && (ReducedTarget>1))
+            {
+                cout << "* " << ReducedTarget << endl;
+/* kernel space projection technique */
+                vector<string> v1 , v2;
+                serv1 = (rand() % ReducedTarget);
+                serv2 = serv1;
+                while (serv2 == serv1)
+                {
+                    serv2 = (rand()%ReducedTarget);
+                }
+                v1 = target_server[serv1];
+
+                string kdep;
+                bool found_kdep = false;
+
+                cout << " ** / kernel : " << endl;
+                for (vector<string>::iterator it = objKernel.begin(); it != objKernel.end(); ++it)
+                {
+                        kdep = *it;
+                        for (int i=0; i < v1.size(); i++)
+                        {
+                            if (!v1[i].compare(kdep))
+                            {
+                                DEBUG_PRINT << "- serv1 " << serv1 << " found kdep : " << kdep << endl;
+
+                                for (int h = 0; h < ReducedTarget; ++h)
+                                {
+                                    if (h==serv1) continue;
+                                    serv2 = h;
+                                    v2 = target_server[h];
+                                    for (int j=0; j< v2.size(); j++)
+                                    {
+                                        if (!v2[j].compare(kdep))
+                                        {
+                                            DEBUG_PRINT << "- serv2 " << serv2 << " match serv1 with " << kdep << endl;
+                                            found_kdep = true;
+                                            goto found_k;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                }
+found_k:
+                if (found_kdep == false)
+                {
+                    cout << " ** no kernel found ! " << endl;
+                    cout << " ** random match serv2 " << serv2 << endl;
+                }
+
+                if (serv1>serv2)
+                {
+                    swap(serv1,serv2);
+                }
+
+                v1 = target_server[serv1];
+                v2 = target_server[serv2];
+                cout << "* v1.size " << v1.size() << "* v2.size " << v2.size() << endl;
+                vector<string> vfusion(v1);
+                vfusion.insert(vfusion.end(), v2.begin(), v2.end());
+                uniq(vfusion);
+
+                target_server.erase(target_server.begin()+serv2);
+                target_server[serv1]=vfusion;
+
+                ReducedTarget = target_server.size();
+            }
+        }
+
+        //show list
+        DEBUG_INFO << endl << "** final list" << endl;
+        unsigned int NumberStep = 0;
+        unsigned int MaxStepByServer = 0;
+        serv = 0;
+        for (vector<vector<string>>::iterator it = target_server.begin(); it != target_server.end(); ++it, ++serv)
+        {
+            vector<string> objList_target = *it;
+            if (MaxStepByServer < objList_target.size())
+            {
+                MaxStepByServer = objList_target.size();
+            }
+
+            if (objList_target.size()>0)
+            {
+                uniq(objList_target);
+                *it = objList_target;
+                NumberStep += objList_target.size();
+                /* for debug x
+                DEBUG_PRINT << endl << "server " << serv << endl;
+                for (vector<string>::iterator it2 = objList_target.begin(); it2 != objList_target.end(); ++it2)
+                {
+                    string dep = *it2;
+                    DEBUG_INFO << dep << " ";
+                }
+                */
+            }
+        }
+        DEBUG_INFO << endl;
+        DEBUG_INFO << "NumberStep " << NumberStep << endl;
+        DEBUG_INFO << "MaxStepByServer " << MaxStepByServer << endl;
+
+        // output final format
+        outfile << NumberStep << endl;
+        for (unsigned int s=0; s<MaxStepByServer; s++)
+        {
+            serv = 0;
+            for (vector<vector<string>>::iterator it = target_server.begin(); it != target_server.end(); ++it, ++serv)
+            {
+                vector<string> objList_target = *it;
+                if (s < objList_target.size())
+                {
+                    outfile << objList_target[s] << " " << serv << endl;
+                }
+            }
+        }
+
+		outfile.close();
+}
+
 int main(int argc, char** argv)
 {
   int bflag = 0;
+  int hflag = 0;
   char *cvalue = NULL;
   int index;
   int c;
 
   opterr = 0;
 
-  while ((c = getopt (argc, argv, "bf:")) != -1)
+  while ((c = getopt (argc, argv, "hbf:")) != -1)
     switch (c)
       {
+      case 'h':
+        bflag = 1;
+        break;		    
       case 'b':
         bflag = 1;
         break;
@@ -758,7 +982,9 @@ int main(int argc, char** argv)
     vector<vector<string>> target_server;
 
     parser(objList,objMap,targetList,target_server,in_filename);
-    if (bflag)
+    if (hflag)
+        processor_heuristic(objList,objMap,targetList,target_server,out_filename);	
+    else if (bflag)
         processor_bigdata(objList,objMap,targetList,target_server,out_filename);
     else
         processor(objList,objMap,targetList,target_server,out_filename);
