@@ -1,5 +1,12 @@
 # Google Hashcode codes
 
+## Hashcode Qualification 2020
+
+**Book scanning problem.**
+
+This year Google has invited us to plan books to be scanned from libraries to maximize the total score of all scanned books, taking into account that each library needs to be signed up before it can ship books. We came with our euphoria excitement.
+Our heartbeat rhythms reach the highest level there, towards the hall of fame. After 3 hours of organized work, we ran the program and successfully reached 26 M points. Satisfaction !
+
 ## Hashcode Qualification 2019
 
 **Photo album sorting problem.**
