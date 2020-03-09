@@ -4,8 +4,17 @@
 
 **Book scanning problem.**
 
-This year Google has invited us to plan books to be scanned from libraries to maximize the total score of all scanned books, taking into account that each library needs to be signed up before it can ship books. We came with our euphoria excitement.
-Our heartbeat rhythms reach the highest level there, towards the hall of fame. After 3 hours of organized work, we ran the program and successfully reached 26 M points. Satisfaction !
+This year Google has invited us to plan books to get scanned from libraries. To maximize the total score of all scanned books, each library needs to be signed up before it can ship books. Our heartbeat rhythms reach the highest level there, towards the hall of fame. After 3 hours of organized work, we ran the program and successfully reached 26 M points. Satisfaction !  We've done it again with our euphoria excitement.
+
+| Input                         |  Score         | 
+|-------------------------------|----------------|
+| a_example.txt                 | 21             |
+| b_read_on.txt                 | 5 822 900      |
+| c_incunabula.txt              | 5 690 246      |
+| d_tough_choices.txt           | 5 040 490      | 
+| e_so_many_books.txt           | 5 060 744      | 
+| f_libraries_of_the_world.txt  | 5 308 034      | 
+| Total / Theoritical rank      | 26 922 435 #218|  
 
 ## Hashcode Qualification 2019
 
