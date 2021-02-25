@@ -1,6 +1,6 @@
 package hashcode2019
 
-object Scorer extends App {
+object 3968Scorer extends App {
 
   val photolist = Helper.loadInputFile(Helper.filename)
 
