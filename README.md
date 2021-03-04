@@ -1,14 +1,30 @@
 # Google Hashcode codes
 
+## Hashcode Qualification 2021
+
+**Traffic light scheduling.**
+
+Google has invited us to review the famous scheduling method about the traffic light for cities. The system is made up of cyclic and periodic red/green lights in order to let cars run on streets and stop at each intersection. Some roads are empty, while the others are jammed. The cars run along a network of main roads connecting diffrent blocks of cities. They have to go from a start point to the end point. The traffic lights commute all around the city in same time. The purpose of our algorithm actually is to change switching cadences of the intersection lights, especially those which connect to the main axis of the city that higher traffic occurs. We made it just in time. Over 9 Millions points had been reached, run our program on the AMD Threadripper 1950X CPU. Hard work always brings satisfaction !
+
+| Input                         |  Score         | 
+|-------------------------------|----------------|
+| a_example.txt                 |     2 000      |
+| b_by_the_ocean.txt            | 4 566 349      |
+| c_checkmate.txt               | 1 292 584      |
+| d_daily_commute.txt           | 1 571 622      | 
+| e_etoile.txt                  |   680 987      | 
+| f_forever_jammed.txt          | 1 082 956      | 
+| Total / Theoritical rank      | 9 196 498      | 
+
 ## Hashcode Qualification 2020
 
 **Book scanning problem.**
 
-This year Google has invited us to plan books to get scanned from libraries. To maximize the total score of all scanned books, each library needs to be signed up before it can ship books. Our heartbeat rhythms reach the highest level there, towards the hall of fame. After 3 hours of organized work, we ran the program and successfully reached 26 M points. Satisfaction !  We've done it again with our euphoria excitement.
+This year Google has invited us to plan books to get scanned from libraries. To maximize the total score of all scanned books, each library needs to be signed up before it can ship books. Our heartbeat rhythms reach the highest level there, towards the hall of fame. After 3 hours of organized work, we ran the program and successfully reached 26 M points. Satisfaction !  We've done it again on the AMD Threadripper 1950X CPU with our euphoria excitement.
 
 | Input                         |  Score         | 
 |-------------------------------|----------------|
-| a_example.txt                 | 21             |
+| a_example.txt                 |        21      |
 | b_read_on.txt                 | 5 822 900      |
 | c_incunabula.txt              | 5 690 246      |
 | d_tough_choices.txt           | 5 040 490      | 
@@ -20,7 +36,7 @@ This year Google has invited us to plan books to get scanned from libraries. To 
 
 **Photo album sorting problem.**
 
-After 3 hours of intense work we finally break free. Our target is to make a simple Greedy algorithm to use the parallelism processing provided by a powerful AMD multi-cores Threadripper 1950X CPU. This year the Google problem is to sort photo album, and make each keyword of photo to match each other. Then, we make it, 2 versions will finally be done, one in Scala language and the other in C language. Run datasets for only 7 minutes on AMD machine. Hit the score board, having cross the 1M points bar. Great ! Classed after 200th. Satisfied but a bit disappointed since we have missed the top 200 world class team.
+After 3 hours of intense work we finally break free. Our target is to make a simple Greedy algorithm to use the parallelism processing provided by a powerful AMD multi-cores Threadripper 1950X CPU. This year the Google problem is to sort photo album, and make each keyword of photo to match each other. Then, we make it, 2 versions will finally be done, one in Scala language and the other in C language. Run datasets for only 7 minutes on AMD 1950X CPU. Hit the score board, having cross the 1M points bar. Great ! Classed after 200th. Satisfied but a bit disappointed since we have missed the top 200 world class team.
 
 Algorithm : 
 - Merge 2 vertical photos by choosing photos with the least common tags
@@ -40,7 +56,7 @@ Algorithm :
 **Car rides scheduling problem.**
 
 Multiples attempts. Starting from the rides is an ok and fast solution but best score was obtainted by looking for the best fit ride/vehicle at each step.
-The best solver is "qhashcode2018_simple.cpp", albeit a long execution time up to 10 minutes on an AMD Threadripper 1950X. The codes had been executed at precisely 5:40 PM before deadline of 6:00 PM. We were confident because thanks to AMD we have the best desktop computer in the current state of the art. We expected as for each input data set, the best solution can be created by using specific tuning parameters.
+The best solver is "qhashcode2018_simple.cpp", albeit a long execution time up to 10 minutes on an AMD Threadripper 1950X CPU. The codes had been executed at precisely 5:40 PM before deadline of 6:00 PM. We were confident because thanks to AMD we have the best desktop computer in the current state of the art. We expected as for each input data set, the best solution can be created by using specific tuning parameters.
 
 
 | Input                     |  Standard        | Specific tuning  |
@@ -63,11 +79,11 @@ Dynamic solution with served request propagation/flagging
 
 | Input                     |  SolverR       | SolverR + prop | SolverR + prop x2 |
 |---------------------------|----------------|----------------|-------------------|
-| trending_today.in         |  346999        | 499969         | 499989            |
+| trending_today.in         | 346999         | 499969         | 499989            |
 | videos_worth_spreading.in | 533895         | 538999         | 539011            |
 | kittens.in                | 664952         | 842618         | 843235            |
 | me_at_the_zoo.in          | 454342         | 484496         | 485719            |
-| Total / Theoritical rank  | 2000188 #~600 | 2366082 #~215  | 2367954 #~215      |
+| Total / Theoritical rank  | 2000188 #~600  | 2366082 #~215  | 2367954 #~215     |
 
 
 ## Hashcode Qualification 2016
@@ -78,7 +94,7 @@ Greedy solver that starts from received delivery orders and looks for the neares
 
 | Input                      | Deliver on each load| Deliver on each order| 
 |----------------------------|---------------------|----------------------|
-| mother_of_all_warehouses.in|  58683              | 70192                |         
+| mother_of_all_warehouses.in| 58683               | 70192                |         
 | busy_day.in | 533895       | 64162               | 86350                |
 | redundancy.in              | 76971               | 87949                | 
 | total score                | 199816              | 244491               | 
