@@ -1,10 +1,26 @@
 # Google Hashcode codes
 
+## Hashcode Qualification 2022
+
+**Mentorship and Teamwork.**
+
+Finding candidates to fulfill projects sounds simple, but the solution is a lot more complex than you might think because of several dimensions of a project and the skill levels of contributors. The first question we have during the competition is how can one know the date to start a project without knowing in advance the availability of each team member, and how to "upgrade" a developer's skill waiting for the next project. We need to sort the projects which have a shorter duration and especially which require lesser skills. All these dimensions should be explored by our algorithm, how and how much time needed to explorer all possibilities ? Moreover, reading the description of the Google Hashcodes problems in 15 minutes are really intensely difficult, the realization of the coding which spans not more than 3 hours. With our latest version of the algorithm, finally we've reached a very good score among the top teams of the world, it's just huge. We've done it again on our AMD Threadripper CPU. Job done, now feeling totally relaxed !
+
+| Input                         |  Score         | 
+|-------------------------------|----------------|
+| a_an_example.in.txt           | 30             |
+| b_better_start_small.in.txt   | 550 048        |
+| c_collaboration.in.txt        | 199 497        |
+| d_dense_schedule.in.txt       | 112 947        |
+| e_exceptional_skills.in.txt   | 1 639 934      |
+| f_find_great_mentors.in.txt   | 354 527        |
+| Total  / Theoritical rank     | 2 856 983      |
+
 ## Hashcode Qualification 2021
 
 **Traffic light scheduling.**
 
-Google has invited us to review the famous scheduling method about the traffic light for cities. The system is made up of cyclic and periodic red/green lights in order to let cars run on streets and stop at each intersection. Some roads are empty, while the others are jammed. The cars run along a network of main roads connecting diffrent blocks of cities. They have to go from a start point to the end point. The traffic lights commute all around the city in same time. The purpose of our algorithm actually is to change switching cadences of the intersection lights, especially those which connect to the main axis of the city that higher traffic occurs. We made it just in time. Over 9 Millions points had been reached, run our program on the AMD Threadripper 1950X CPU. Hard work always brings satisfaction !
+Let's review the famous scheduling method about the traffic light for cities. The system is made up of cyclic and periodic red/green lights in order to let cars run on streets and stop at each intersection. Some roads are empty, while the others are jammed. The cars run along a network of main roads connecting diffrent blocks of cities. They have to go from a start point to the end point. The traffic lights commute all around the city in same time. The purpose of our algorithm actually is to change switching cadences of the intersection lights, especially those which connect to the main axis of the city that higher traffic occurs. We made it just in time. Over 9 Millions points had been reached, run our program on the AMD Threadripper 1950X CPU. Hard work always brings satisfaction !
 
 | Input                         |  Score         | 
 |-------------------------------|----------------|
@@ -20,7 +36,7 @@ Google has invited us to review the famous scheduling method about the traffic l
 
 **Book scanning problem.**
 
-This year Google has invited us to plan books to get scanned from libraries. To maximize the total score of all scanned books, each library needs to be signed up before it can ship books. Our heartbeat rhythms reach the highest level there, towards the hall of fame. After 3 hours of organized work, we ran the program and successfully reached 26 M points. Satisfaction !  We've done it again on the AMD Threadripper 1950X CPU with our euphoria excitement.
+This year Google has invited the best programmers of the world to plan the books to get scanned from libraries. To maximize the total score of all scanned books, each library needs to be signed up before it can ship books. Our heartbeat rhythms reach the highest level there, towards the hall of fame. After 3 hours of organized work, we ran the program and successfully reached 26 M points. Satisfaction !  We've done it again on the AMD Threadripper 1950X CPU with our euphoria excitement.
 
 | Input                         |  Score         | 
 |-------------------------------|----------------|
